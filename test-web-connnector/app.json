@@ -1,0 +1,22 @@
+{
+  "application_id": "92f6a60b-7227-4af9-a423-0ae340ecb9d0",
+  "application_name": "example-01",
+  "application_uris": [
+   "example-01.apps-dev.chdc20-cf.solera.com"
+  ],
+  "application_version": "33be3b10-ba9e-4efe-9706-78227420e3ec",
+  "cf_api": "https://api.system-dev.chdc20-cf.solera.com",
+  "limits": {
+   "disk": 1024,
+   "fds": 16384,
+   "mem": 2048
+  },
+  "name": "example-01",
+  "space_id": "6a31b0a3-bb1a-4ac9-8fa9-906327fc3dcb",
+  "space_name": "sandbox",
+  "uris": [
+   "example-01.apps-dev.chdc20-cf.solera.com"
+  ],
+  "users": null,
+  "version": "33be3b10-ba9e-4efe-9706-78227420e3ec"
+ }

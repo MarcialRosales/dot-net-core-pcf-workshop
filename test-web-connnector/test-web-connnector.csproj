@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <AspNetCoreVersion>1.1.2</AspNetCoreVersion>
+    <SteeltoeConfigVersion>1.1.0</SteeltoeConfigVersion>
+    <SteeltoeConnectorVersion>1.0.1</SteeltoeConnectorVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="1.1.2" />
+  </ItemGroup> 
+  <ItemGroup> 
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(AspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(AspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(AspNetCoreVersion)" />     
+    <PackageReference Include="Steeltoe.Extensions.Configuration.CloudFoundry" Version="$(SteeltoeConfigVersion)" />
+    <PackageReference Include="Steeltoe.CloudFoundry.Connector.MySql" Version="$(SteeltoeConnectorVersion)" />
+    <PackageReference Include="Steeltoe.CloudFoundry.Connector" Version="$(SteeltoeConnectorVersion)" />
+  </ItemGroup> 
+
+</Project>
