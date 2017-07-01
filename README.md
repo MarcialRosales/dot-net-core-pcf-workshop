@@ -150,6 +150,40 @@ If we have +1 instances, we have zero-downtime because the other instances are a
 
 # Cloud Foundry services
 
+We are going to continue working on our **Flight Availability** application by adding more functionality. In this section we are going to look at different versions our our application which uses a `MySQL` database instead of an in-memory one, it calls external applications and integrates with other service such as **Central Registry** and **Config Server**.
+
+.Net applications rely on the `appsettings.json` file to provide *Connection Strings* to the application such as `MySQL connection strings` or the `URL to an external application`.
+
+In **Cloud** environments, Cloud Native applications should follow the [12 Factors](https://12factor.net/config), specially the 3rd factor that says "Environment related configuration is provided via environment variables". In Cloud Foundry, the *Connection strings* to services like databases is provided via the `VCAP_SERVICES` variable.
+
+## Quick introduction to Services
+
+  `cf marketplace`  Check out what services are available
+
+  `cf marketplace -s p-mysql pre-existing-plan ...`  Check out the service details like available plans
+
+  `cf create-service ...`   Create a service instance with the name `flight-repository`
+
+  `cf service ...`  Check out the service instance. Is it ready to use?
+
+  `cf env flight-availability` Check the environment variables attached to our application
+  
+
+## Introduction to [Steeltoe](https://steeltoe.io/) Library
+
+All
+This application was created using the out of the box ASP.NET Core MVC template found in the dotnet CLI. It makes use of the Steeltoe Configuration provider called https://github.com/SteeltoeOSS/Configuration/tree/master/src/Steeltoe.Extensions.Configuration.CloudFoundry[CloudFoundry]. This provider enables the CloudFoundry environment variables, `VCAP_APPLICATION`, `VCAP_SERVICES` and `CF_*` to be parsed and accessed as configuration data within a .NET application.
+
+When Microsoft developed ASP.NET Core, the next generation of ASP.NET, they created a number of new `Extension` frameworks that provide services(e.g. Configuration, Logging, Dependency Injection, etc) commonly used/needed when building applications. While these `Extensions` certainly can be used in ASP.NET Core apps, they can also be leveraged in other app types including ASP.NET 4, Console Apps, UWP Apps, etc.
+
+With Steeltoe, we have added to the Microsoft https://github.com/aspnet/Configuration[Configuration Extension providers] by adding two additional providers:
+
+. https://github.com/SteeltoeOSS/Configuration/tree/master/src/Steeltoe.Extensions.Configuration.CloudFoundry[CloudFoundry] Configuration provider
+. https://github.com/SteeltoeOSS/Configuration/tree/master/src/Steeltoe.Extensions.Configuration.ConfigServer[Config Server Client] Configuration provider
+
+To get a better understanding of the `Microsoft Configuration Extensions` have a look at the https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration[ASP.NET Core Documentation].
+
+
 ## Load flights from a provisioned database
 
 We want to load the flights from a relational database (mysql) provisioned by the platform not an in-memory database.
@@ -181,9 +215,10 @@ We want to load the flights from a relational database (mysql) provisioned by th
   applications:
   - name: flight-availability
     instances: 1
-    memory: 1024M
     path: publish
     random-route: true
+    env:
+      ASPNETCORE_ENVIRONMENT: Production
     services:
     - flight-repository
 

@@ -1,0 +1,9 @@
+﻿---
+applications:
+- name: flight-availability
+  path: publish
+  random-route: true
+  env:
+    ASPNETCORE_ENVIRONMENT: Production
+  services:
+   - flightRepository

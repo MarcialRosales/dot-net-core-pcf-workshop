@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <RuntimeIdentifiers>win10-x64;osx.10.11-x64;ubuntu.14.04-x64</RuntimeIdentifiers>
+    <!-- 
+    PCF .NET Core Buildpack - https://docs.cloudfoundry.org/buildpacks/dotnet-core/index.html#specify-version
+    Lock the .NET Framework to a minor version. 
+    Do not lock to a patch version, because buildpacks contain only the two most 
+    recent patch versions of each minor version.
+    -->
+    <AspNetCore>1.1.*</AspNetCore>
+    <AspNetCoreMvc>1.1.*</AspNetCoreMvc>
+    <EF>1.0.*</EF>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="$(AspNetCore)" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="$(AspNetCoreMvc)" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="$(AspNetCore)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="$(AspNetCore)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(EF)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EF)" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0"/>
+    <PackageReference Include="Steeltoe.CloudFoundry.Connector.MySql" version="1.0.*" />
+  </ItemGroup>
+
+
+</Project>
