@@ -31,5 +31,12 @@ namespace FlightAvailability.Controllers
         {
             return View();
         }
+
+        public IActionResult KillApp()
+        {
+            Console.WriteLine("Killing application ...");
+            Environment.Exit(-1);
+            return View();
+        }
     }
 }
