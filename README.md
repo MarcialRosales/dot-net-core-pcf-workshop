@@ -69,9 +69,9 @@ This application was created using the out of the box ASP.NET Core MVC template 
 
 1. `cd load-flights-from-in-memory-db/flight-availability`
 3. Build the app  
-  `dotnet restore`
-  `dotnet build`
-  `dotnet publish -o publish -r ubuntu.14.04-x64`
+  `dotnet restore`  
+  `dotnet build`  
+  `dotnet publish -o publish -r ubuntu.14.04-x64`  
 4. Deploy the app  
   `cf push flight-availability -p publish --random-route`
 6. Check out application's details, whats the url?  
