@@ -9,24 +9,11 @@ PCF .Net Core Developers workshop
   - [Lab - Deploy .Net Core app](#deploy-dot-net-app)
   - [Lab - Deploy web site](#deploy-web-site)
   - [Quick Introduction to Buildpacks](#quick-intro-buildpack)
-	- [Deploying applications with application manifest](#deploying-applications-with-application-manifest)
-	- [Platform guarantees](#Platform-guarantees)
+  - [Deploying applications with application manifest](#deploying-applications-with-application-manifest)
+  - [Platform guarantees](#Platform-guarantees)
 - [Cloud Foundry services](#cloud-foundry-services)
   - [Lab - Load flights from a database](#load-flights-from-a-provisioned-database)  
-<!--
-- [Cloud Foundry services](#cloud-foundry-services)
-  - [Lab - Load flights from a database](#load-flights-from-a-provisioned-database)  
-  - [Lab - Load flights fares from an external application using User Provided Services](#load-flights-fares-from-an-external-application-using-user-provided-services)
-  - [Lab - Let external application access a platform provided service](#let-external-application-access-a-platform-provided-service)
-- [Routes and Domains](#routes-and-domains)
-  - [Lab - Private and Public routes/domains](#private-and-public-routesdomains)
-  - [Lab - Blue-Green deployment](#blue-green-deployment)
-  - [Lab - Routing Services](#routing-services)
-- [Orgs, Spaces and Users](orgsSpacesUsers-README.md)
-- [Build packs](buildpack-README.md)
-  - [Lab - Adding functionality](buildpack-README.md#adding-functionality)
-  - [Lab - Changing functionality](buildpack-README.md#changing-functionality)
--->
+
 
 <!-- /TOC -->
 # Introduction
