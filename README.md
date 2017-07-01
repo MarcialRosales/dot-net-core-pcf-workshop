@@ -6,10 +6,14 @@ PCF .Net Core Developers workshop
 - [Introduction](#Introduction)
 - [Pivotal Cloud Foundry Technical Overview](#pivotal-cloud-foundry-technical-overview)
 - [Deploying simple apps](#deploying-simple-apps)
-  - [Lab - Deploy Spring boot app](#deploy-spring-boot-app)
-  - [Lab - Deploy web site](#Deploy-web-site)
+  - [Lab - Deploy .Net Core app](#deploy-dot-net-app)
+  - [Lab - Deploy web site](#deploy-web-site)
+  - [Quick Introduction to Buildpacks](#quick-intro-buildpack)
 	- [Deploying applications with application manifest](#deploying-applications-with-application-manifest)
-	- [Platform guarantees](#Platform guarantees)
+	- [Platform guarantees](#Platform-guarantees)
+- [Cloud Foundry services](#cloud-foundry-services)
+  - [Lab - Load flights from a database](#load-flights-from-a-provisioned-database)  
+<!--
 - [Cloud Foundry services](#cloud-foundry-services)
   - [Lab - Load flights from a database](#load-flights-from-a-provisioned-database)  
   - [Lab - Load flights fares from an external application using User Provided Services](#load-flights-fares-from-an-external-application-using-user-provided-services)
@@ -22,6 +26,7 @@ PCF .Net Core Developers workshop
 - [Build packs](buildpack-README.md)
   - [Lab - Adding functionality](buildpack-README.md#adding-functionality)
   - [Lab - Changing functionality](buildpack-README.md#changing-functionality)
+-->
 
 <!-- /TOC -->
 # Introduction
@@ -72,7 +77,7 @@ In the next sections we are going to deploy a ASP.NET Core MVC application and a
 1. `git clone https://github.com/MarcialRosales/dot-net-pcf-workshops.git`
 2. `cd dot-net-pcf-workshops`
 
-## Deploy a ASP.NET Core MVC app
+## <a name="deploy-dot-net-app"></a> Deploy a ASP.NET Core MVC app
 This application was created using the out of the box ASP.NET Core MVC template found in the dotnet CLI. It uses MVC to render the home page and it also has REST controllers that allows us to look up flights by its origin and destination.
 
 1. `cd load-flights-from-in-memory-db/flight-availability`
@@ -90,7 +95,7 @@ This application was created using the out of the box ASP.NET Core MVC template 
 
 
 
-## Deploy a web site
+## <a name="deploy-web-site"></a> Deploy a web site
 Deploy static site associated to the flight availability and make it internally available on a given private domain.
 The static site corresponds to the API documentation of our flight-availability application. We use [ReDoc](https://github.com/Rebilly/ReDoc) to produce a web site from a Swagger definition that we have downloaded from our running application (`/swagger/v1/swagger.json`) and saved as `swagger.yml`.
 
@@ -101,7 +106,7 @@ The static site corresponds to the API documentation of our flight-availability 
   `cf app flight-availability-site`  
 4. How did PCF know that this was a static site and not a .Net application?
 
-## Quick Introduction to Buildpacks
+## <a name="quick-intro-buildpack"></a> Quick Introduction to Buildpacks
 
 We have pushed two applications, a .Net Core and a static web site. We know that for the .Net Core we need a .Net Core Runtime and to run the static web site we need a web server like Apache or Nginx.
 
