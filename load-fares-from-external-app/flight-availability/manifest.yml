@@ -6,6 +6,6 @@ applications:
   domain: apps-dev.chdc20-cf.solera.com
   env:
     ASPNETCORE_ENVIRONMENT: Production
-    fare_service__url: https://mr-fare-services.apps-dev.chdc20-cf.solera.com
+    fare_service__url: https://mr-fare-services.private-dev.chdc20-cf.solera.com
   services:
    - flights

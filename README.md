@@ -268,6 +268,27 @@ We want to load the flights from a relational database (mysql) provisioned by th
 7. run `flight-availability` with the environment `Development`:
   `ASPNETCORE_ENVIRONMENT=Development dotnet run `
 
+To deploy to PCF:
+
+We are going to deploy the *fare-service* as an internal application with a DNS domain which is not visible to the internet. 
+
+1. Prepare `manifest.yml`:
+  ```
+  ---
+  applications:
+  - name: fare-service
+    path: publish
+    host: mr-fare-services
+    domains: 
+    - private-dev.chdc20-cf.solera.com
+    env:
+      ASPNETCORE_ENVIRONMENT: Production
+  ```
+2. Build 
+  `dotnet publish -o publish -r ubuntu.14.04-x64`
+3. Deploy
+  `cf push` 
+
 ### Configure credentials of external services
 If we want to deploy the flight-availability to PCF, or any environment, we need to externalize the url of the *fare-service*. We cannot keep it along with the assembly in the `appsettings.json`. 
 
