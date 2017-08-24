@@ -18,7 +18,7 @@ namespace FlightAvailability.Model
 
         async Task<List<Flight>> IFlightRepository.findByOriginAndDestination(string origin, string destination)
         {
-            return await _ctx.Flight
+            return await _ctx.Flights
                 .Where(f => f.Origin == origin && f.Destination == destination)
                 .ToListAsync();
         }

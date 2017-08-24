@@ -158,6 +158,7 @@ In **Cloud** environments, Cloud Native applications should follow the [12 Facto
 
 ## Quick introduction to Services
 
+
   `cf marketplace`  Check out what services are available
 
   `cf marketplace -s p-mysql pre-existing-plan ...`  Check out the service details like available plans
@@ -171,7 +172,17 @@ In **Cloud** environments, Cloud Native applications should follow the [12 Facto
 
 ## Introduction to [Steeltoe](https://steeltoe.io/) Library
 
-TODO
+Steeltoe is a library that adds a [Configuration Provider](https://github.com/SteeltoeOSS/Configuration/tree/master/src/Steeltoe.Extensions.Configuration.CloudFoundry) to our .Net Core application. This provider enables the CloudFoundry environment variables, `VCAP_APPLICATION`, `VCAP_SERVICES` and `CF_*` to be parsed and accessed as configuration data within a .NET application.
+
+When Microsoft developed ASP.NET Core, the next generation of ASP.NET, they created a number of new `Extension` frameworks that provide services(e.g. Configuration, Logging, Dependency Injection, etc) commonly used/needed when building applications. While these `Extensions` certainly can be used in ASP.NET Core apps, they can also be leveraged in other app types including ASP.NET 4, Console Apps, UWP Apps, etc.
+
+With Steeltoe, we have added to the Microsoft https://github.com/aspnet/Configuration[Configuration Extension providers] by adding two additional providers:
+
+. https://github.com/SteeltoeOSS/Configuration/tree/master/src/Steeltoe.Extensions.Configuration.CloudFoundry[CloudFoundry] Configuration provider
+. https://github.com/SteeltoeOSS/Configuration/tree/master/src/Steeltoe.Extensions.Configuration.ConfigServer[Config Server Client] Configuration provider
+
+We are going to explore in the next sections the first one.
+
 
 ## Load flights from a provisioned database
 
@@ -212,8 +223,118 @@ We want to load the flights from a relational database (mysql) provisioned by th
     - flight-repository
 
   ```
+  `cf push`
 
 7. Check out the database credentials the application is using:  
   `cf env flight-availability`
 
 8. Test the application's REST API.
+
+
+## Load fares from an external application 
+
+1. create the new web app
+  ```
+  mkdir fare-service
+  dotnet new webapi
+  dotnet restore
+  ```
+2. configure the listening port
+  Add assembly `Microsoft.Extensions.Configuration.CommandLine` and use it like this:
+  ```
+    var config = new ConfigurationBuilder()
+        .AddCommandLine(args)
+        .Build();
+    var host = new WebHostBuilder()
+        .UseConfiguration(config)
+    ...
+  ```
+  And launch it using: `dotnet run --server.urls "http://*:5001"`
+
+3. add controller that returns an array of fares 
+4. test it:
+  `curl -v -X POST -H "Content-Type: application/json" http://localhost:5001/ -d '[{ "id": "123"}, { "id": "343"} ]' | jq .`
+
+5. create `FareService` business service which calls the *fare_service* to get flights' fares.
+6. add configuration section for the `fare_service` in `appsettings.Development.json` :
+  ```
+  ...
+  "fare_service": {
+    "url": "http://localhost:5001"
+  }
+  ...
+  ```
+
+7. run `flight-availability` with the environment `Development`:
+  `ASPNETCORE_ENVIRONMENT=Development dotnet run `
+
+### Configure credentials of external services
+If we want to deploy the flight-availability to PCF, or any environment, we need to externalize the url of the *fare-service*. We cannot keep it along with the assembly in the `appsettings.json`. 
+
+There are 3 ways to configure services' credentials:
+  - Use Environment variables:
+    Pros:
+    * Simple to implement  
+    Cons: 
+    * We cannot change them once the application starts up. 
+    * If several applications share the same environment variable, should the credentials changed, we have to reset it in all applications    
+  - User-Provided-Service(s):
+    Pros:
+    * Treat it like any other service provided by the platform.
+    * If several applications share the same service, should the credentials changed, we dont have to reset it in all applications but they all have to restart though
+    Cons:
+    * More complex. We have to write code to inject into Steeltoe. 
+  - Configuration server:
+    Props:
+    * Simple to implement but not simpler than environment variables
+    Cons:
+    * Credentials are no longer managed within the platform but elsewhere. More operations, i.e. git clone, modify setting, commit, push, refresh all apps.
+
+### Use Environment variables
+The simplest way is to override the settings defined in `appsettings.json` via *Environment variables* like this:
+
+  `fare_service__url="http://localhost:5001" ASPNETCORE_ENVIRONMENT=Development dotnet run `
+
+The `Configuration` library assumes that environment variables can follow this format: *SECTION_NAME*__*ATTRIBUTE*, e.g. `fare_service__url`. 
+
+When we deploy this app to PCF, we need to declare a environment variable for the application either in the manifest or via command line:
+  ```
+  cf push --no-start
+  cf set-env flight-availability fare_service__url http://theURL 
+  cf start flight-availability
+  ```
+
+
+### Miscellaneous 
+
+## Leverage SteelToe connectors to provide an info endpoint
+
+1. Add an actuator controller mount on `mgt/`. This controller expects on its contractor a `IOptions<CloudFoundryApplicationOptions>`. 
+  ```
+    public ActuatorController(ILogger<ActuatorController> logger, IOptions<CloudFoundryApplicationOptions> appInfo)
+    {
+      ...
+    }  
+  ```
+
+2. Add CloudFoundry configuration -provided by Steeltoe- as a service:
+  ```
+  // This method gets called by the runtime. Use this method to add services to the container.
+  public void ConfigureServices(IServiceCollection services)
+  {
+      services.AddCloudFoundry(Configuration);
+
+      ...
+  ```
+3. Add an `/mgt/info` endpoint which returns json representation of `CloudFoundryApplicationOption`.
+  ```
+   // GET: mgt/info
+  [HttpGet("info")]
+  public CloudFoundryApplicationOptions info()
+  {
+      _logger?.LogDebug("requesting info");
+      
+      return _appInfo;
+  }
+  ```
+

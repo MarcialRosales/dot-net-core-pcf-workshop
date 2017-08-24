@@ -10,6 +10,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Swashbuckle.AspNetCore.Swagger;
+
+using Steeltoe.Extensions.Configuration;
+using Steeltoe.Extensions.Configuration.CloudFoundry;
 using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 
 using FlightAvailability.Services;
@@ -25,7 +28,9 @@ namespace FlightAvailability
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddCloudFoundry()
                 .AddEnvironmentVariables();
+                
             Configuration = builder.Build();
             Environment = env;
         }
@@ -40,16 +45,22 @@ namespace FlightAvailability
             {
                 services.AddEntityFramework()
                     .AddDbContext<FlightContext>(options => options.UseInMemoryDatabase());
+                services.AddEntityFramework()
+                    .AddDbContext<FortuneContext>(options => options.UseInMemoryDatabase());
 
             } else
             {
                 services.AddEntityFramework()
                      .AddDbContext<FlightContext>(options => options.UseMySql(Configuration));
+                services.AddEntityFramework()
+                    .AddDbContext<FortuneContext>(options => options.UseMySql(Configuration));
+                
             }
             
             // Add framework services.
             services.AddMvc();
             services.AddSingleton<IFlightRepository, FlightRepository>();
+            services.AddSingleton<IFortuneRepository, FortuneRepository>();
             services.AddSingleton<IFlightService, FlightService>();
             services.AddSingleton<IImportFlights, ImportFlights>();
 
@@ -61,7 +72,7 @@ namespace FlightAvailability
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, FlightContext ctx)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -82,7 +93,9 @@ namespace FlightAvailability
             app.UseSwagger();
 
 
-            app.ApplicationServices.GetRequiredService<IImportFlights>().Import();
+            FlightAvailability.Model.ImportFlights2.Import(ctx);
+            //app.ApplicationServices.GetRequiredService<IImportFlights>().Import();
+            //FlightAvailability.Model.SampleData.InitializeFortunesAsync(app.ApplicationServices).Wait();
         }
     }
 }

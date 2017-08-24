@@ -1,0 +1,11 @@
+﻿---
+applications:
+- name: flight-availability
+  path: publish
+  host: mr-flight-availability
+  domain: apps-dev.chdc20-cf.solera.com
+  env:
+    ASPNETCORE_ENVIRONMENT: Production
+    fare_service__url: https://mr-fare-services.apps-dev.chdc20-cf.solera.com
+  services:
+   - flights
