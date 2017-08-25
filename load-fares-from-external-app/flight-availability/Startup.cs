@@ -44,12 +44,7 @@ namespace FlightAvailability
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            Console.WriteLine($"App name : {Configuration["vcap:application:name"]}");
-
-            services.AddOptions();
             services.AddCloudFoundry(Configuration);
-
-            services.Configure<FareServiceOptions>(Configuration.GetSection("fare-service"));
 
             if (Environment.IsDevelopment())
             {
@@ -67,13 +62,12 @@ namespace FlightAvailability
                 
             }
             
-            services.AddSingleton<HttpClient>(buildHttpClient(Configuration.GetSection("fare_service")));
+            services.AddFareService(Configuration);
             
             // Add framework services.
             services.AddMvc();
             services.AddSingleton<IFlightRepository, FlightRepository>();
             services.AddSingleton<IFortuneRepository, FortuneRepository>();
-            services.AddSingleton<IFareService, FareService>();
             services.AddSingleton<IFlightService, FlightService>();
             services.AddSingleton<IImportFlights, ImportFlights>();
             
@@ -84,16 +78,6 @@ namespace FlightAvailability
             });
         }
 
-        private HttpClient buildHttpClient(IConfiguration config) {
-            
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(config.GetValue<String>("url"));
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            Console.Write($"HTTP client {client.BaseAddress}");
-            return client;
-        }
-        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, FlightContext ctx)
         {
@@ -122,14 +106,6 @@ namespace FlightAvailability
         }
     }
 
-    public class FareServiceOptions 
-    {
-        public FareServiceOptions() 
-        {
-
-        }
-        public string url { get; set; }
-
-    }
+    
 
 }
