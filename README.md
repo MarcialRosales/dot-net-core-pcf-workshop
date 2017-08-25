@@ -359,3 +359,45 @@ When we deploy this app to PCF, we need to declare a environment variable for th
   }
   ```
 
+## Load fares from an internal application registered with Eureka
+
+1. Create the service registration, a.k.a. Eureka
+  (http://docs.pivotal.io/spring-cloud-services/service-registry/creating-an-instance.html)
+  ```
+  cf marketplace -s p-service-registry
+
+  cf create-service p-service-registry standard service-registry
+
+  cf services
+
+  cf service service-registry 
+  ```
+2. Make sure the service is ready. PCF provisions the services asynchronously. Go to the AppsManager and check the service. Check out the dashboard. Or use the command `cf service service-registry`. 
+
+3. Prepare `manifest.yml`:
+  ```
+  ---
+  applications:
+  - name: fare-service
+    path: publish
+    host: mr-fare-services
+    domains: 
+    - private-dev.chdc20-cf.solera.com
+    env:
+      ASPNETCORE_ENVIRONMENT: Production
+    services:
+    - service-registry
+  ```
+4. Build 
+  `dotnet publish -o publish -r ubuntu.14.04-x64`
+5. Deploy
+  `cf push` 
+6. Check the credentials PCF has injected into our application
+  `cf env fare-service`
+
+7. Check the application has registered with Eureka. Get the url of the dashboard 
+  `cf service service-registry` 
+
+8. Update flight-availability 
+
+TODO Add more content
