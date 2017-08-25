@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <RuntimeIdentifiers>win10-x64;osx.10.11-x64;ubuntu.14.04-x64</RuntimeIdentifiers>
+    <!-- 
+    PCF .NET Core Buildpack - https://docs.cloudfoundry.org/buildpacks/dotnet-core/index.html#specify-version
+    Lock the .NET Framework to a minor version. 
+    Do not lock to a patch version, because buildpacks contain only the two most 
+    recent patch versions of each minor version.
+    -->
+    <AspNetCore>1.1.1</AspNetCore>
+    <AspNetCoreMvc>1.1.2</AspNetCoreMvc>
+    <EF>1.0.3</EF>
+    <SteeltoeConfigVersion>1.1.0</SteeltoeConfigVersion>
+    <SteeltoeConnectorVersion>1.0.0</SteeltoeConnectorVersion>
+<!--    <AspNetWebApiVersion>5.2.3</AspNetWebApiVersion>  -->
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="$(AspNetCore)" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="$(AspNetCoreMvc)" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="$(AspNetCore)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="$(AspNetCore)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(AspNetCore)" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(AspNetCore)" />
+    
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(EF)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EF)" />
+    
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0"/>
+
+    <PackageReference Include="Steeltoe.CloudFoundry.Connector.MySql" version="$(SteeltoeConnectorVersion)" />
+    <PackageReference Include="Steeltoe.CloudFoundry.Connector" version="$(SteeltoeConnectorVersion)" />
+    <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServer" version="$(SteeltoeConnectorVersion)" />
+
+    <PackageReference Include="Newtonsoft.Json" version="10.0.3"/>
+
+  </ItemGroup>
+
+
+</Project>

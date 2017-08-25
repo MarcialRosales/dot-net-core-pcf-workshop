@@ -1,0 +1,9 @@
+﻿---
+applications:
+- name: fare-service
+  path: publish
+  host: mr-fare-services
+  domains: 
+  - private-dev.chdc20-cf.solera.com
+  env:
+    ASPNETCORE_ENVIRONMENT: Production
