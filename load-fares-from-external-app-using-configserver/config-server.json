@@ -1,0 +1,6 @@
+{
+    "git": { 
+        "uri": "https://github.com/MarcialRosales/dot-net-pcf-workshop", 
+        "searchPaths": "load-fares-from-external-app-using-configserver/config_repo" 
+    }
+}

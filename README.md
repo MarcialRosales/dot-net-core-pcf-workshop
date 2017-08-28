@@ -401,3 +401,34 @@ When we deploy this app to PCF, we need to declare a environment variable for th
 8. Update flight-availability 
 
 TODO Add more content
+
+
+
+## Load fares from external application using centralized configuration 
+
+In `load-fares-from-external-app` we configured the location of `fare-service` using local configuration file like `appsettings.json`. We also learnt that we can override that setting thru environment variables (`cf set-env` or in the `manifest.yml`).
+
+Now, we are going to move the configuration to a central location, the *Config Server*. 
+
+[Introduction to Config Server](https://github.com/MarcialRosales/spring-cloud-workshop/blob/master/docs/SpringCloudConfigSlides.pdf)
+
+TODO explain code changes and project changes 
+
+1. Check the config server in the market place
+  `cf marketplace -s p-config-server`
+
+2. Create a service instance using `config-server.json` file found in the folder `load-fares-from-external-app-using-configserver`
+  The json file contains the service's settings. Check out the [docs](https://docs.pivotal.io/spring-cloud-services/1-4/common/config-server/configuring-with-git.html) for more details. 
+  `cf create-service -c config-server.json p-config-server standard config-server`
+
+3. Make sure the service is available (`cf service config-server`). It will indicate `create in progress` or `create succeeded`. 
+
+4. Update manifest to include `config-server`
+
+5. Build 
+  `dotnet publish -o publish -r ubuntu.14.04-x64`
+
+5. Deploy
+  `cf push` 
+
+

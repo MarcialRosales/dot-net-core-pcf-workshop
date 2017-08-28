@@ -5,7 +5,7 @@ applications:
   host: mr-flight-availability
   domain: apps-dev.chdc20-cf.solera.com
   env:
-    ASPNETCORE_ENVIRONMENT: Production
-    fare_service__url: https://mr-fare-services.private-dev.chdc20-cf.solera.com
+    ASPNETCORE_ENVIRONMENT: Development
   services:
    - flights
+   - config-server

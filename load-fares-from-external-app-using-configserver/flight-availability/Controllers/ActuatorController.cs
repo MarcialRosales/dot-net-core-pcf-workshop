@@ -8,6 +8,7 @@ using Steeltoe.Extensions.Configuration;
 using Steeltoe.Extensions.Configuration.CloudFoundry;
 using Steeltoe.CloudFoundry.Connector.App;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace FlightAvailability.Controllers
 {
@@ -16,9 +17,11 @@ namespace FlightAvailability.Controllers
     {
         ILogger<ActuatorController> _logger;
         CloudFoundryApplicationOptions _appInfo;
+        IConfigurationRoot _config;
 
-        public ActuatorController(ILogger<ActuatorController> logger, IOptions<CloudFoundryApplicationOptions> appInfo)
+        public ActuatorController(IConfigurationRoot config, ILogger<ActuatorController> logger, IOptions<CloudFoundryApplicationOptions> appInfo)
         {
+            _config = config;
             _logger = logger;
             _appInfo = appInfo.Value;
         }
@@ -33,5 +36,12 @@ namespace FlightAvailability.Controllers
            return _appInfo;
         }
 
+
+        // POST: mgt/reload
+        [HttpPost("reload")]
+        public void reload() 
+        {
+            _config.Reload();   
+        }
     }
 }

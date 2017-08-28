@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using FlightAvailability.Model;
+using Microsoft.Extensions.Logging;
 
 namespace FlightAvailability.Services
 {
@@ -12,11 +13,13 @@ namespace FlightAvailability.Services
     {
         private IFlightRepository _repo;
         private IFareService _fareService;
+        private ILogger<FlightService> _logger;
 
-        public FlightService(IFlightRepository repo, IFareService fareService)
+        public FlightService(IFlightRepository repo, IFareService fareService, ILogger<FlightService> logger)
         {
             this._repo = repo;
             this._fareService = fareService;
+            this._logger = logger;
         }
 
 
@@ -42,12 +45,17 @@ namespace FlightAvailability.Services
                 return new List<FaredFlight>(); 
             //List<Flight> flights = InitialFlights();
 
-            Console.Write($"Retrived {flights.Count} flights");
+            _logger.LogInformation(LoggingEvents.RequestFlightWithFares, "Pricing {flightCount} flights for {origin}/{destination} at {RequestTime}", 
+                flights.Count, origin, destination, DateTime.Now);
 
             List<string> fares = await _fareService.applyFares(flights);
             return Enumerable.Range(1, flights.Count).
                 Select(i =>  new FaredFlight(flights[i-1], fares[i-1]) ).ToList();
         }
         
+    }
+    class LoggingEvents 
+    {
+        public const int RequestFlightWithFares = 1000;
     }
 }

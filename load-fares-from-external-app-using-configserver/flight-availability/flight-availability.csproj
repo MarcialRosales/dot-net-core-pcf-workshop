@@ -34,7 +34,7 @@
     <PackageReference Include="Steeltoe.CloudFoundry.Connector.MySql" version="$(SteeltoeConnectorVersion)" />
     <PackageReference Include="Steeltoe.CloudFoundry.Connector" version="$(SteeltoeConnectorVersion)" />
     <PackageReference Include="Pivotal.Extensions.Configuration.ConfigServer" version="$(SteeltoeConnectorVersion)" />
-
+  
     <PackageReference Include="Newtonsoft.Json" version="10.0.3"/>
 
   </ItemGroup>

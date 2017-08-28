@@ -13,10 +13,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Swashbuckle.AspNetCore.Swagger;
 
-using Steeltoe.Extensions.Configuration;
 using Steeltoe.Extensions.Configuration.CloudFoundry;
-using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
+using Pivotal.Extensions.Configuration;
 
+using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
 
 using FlightAvailability.Services;
 using FlightAvailability.Model;
@@ -25,18 +25,28 @@ namespace FlightAvailability
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            var config = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true).Build();
+            
+            loggerFactory.AddConsole(config.GetSection("Logging"));
+
             Console.Write("using environment: "+ env.EnvironmentName);
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddConfigServer(env)
-                .AddEnvironmentVariables();
+                //.AddCloudFoundry()
+                .AddEnvironmentVariables()
+                .AddConfigServer(env, loggerFactory);
+                
                 
             Configuration = builder.Build();
             Environment = env;
+
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -45,8 +55,9 @@ namespace FlightAvailability
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCloudFoundry(Configuration);
-
+            services.AddConfigServer(Configuration);
+            //services.AddCloudFoundry(Configuration);
+            
             if (Environment.IsDevelopment())
             {
                 services.AddEntityFramework()
@@ -82,9 +93,7 @@ namespace FlightAvailability
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, FlightContext ctx)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
