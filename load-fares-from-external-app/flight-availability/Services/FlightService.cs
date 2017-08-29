@@ -40,9 +40,6 @@ namespace FlightAvailability.Services
              List<Flight> flights = await _repo.findByOriginAndDestination(origin, destination);
              if (flights.Count < 1) 
                 return new List<FaredFlight>(); 
-            //List<Flight> flights = InitialFlights();
-
-            Console.Write($"Retrived {flights.Count} flights");
 
             List<string> fares = await _fareService.applyFares(flights);
             return Enumerable.Range(1, flights.Count).

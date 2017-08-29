@@ -231,7 +231,7 @@ We want to load the flights from a relational database (mysql) provisioned by th
 8. Test the application's REST API.
 
 
-## Load fares from an external application 
+## Load fares from an external application
 
 1. create the new web app
   ```
@@ -251,7 +251,7 @@ We want to load the flights from a relational database (mysql) provisioned by th
   ```
   And launch it using: `dotnet run --server.urls "http://*:5001"`
 
-3. add controller that returns an array of fares 
+3. add controller that returns an array of fares
 4. test it:
   `curl -v -X POST -H "Content-Type: application/json" http://localhost:5001/ -d '[{ "id": "123"}, { "id": "343"} ]' | jq .`
 
@@ -270,7 +270,7 @@ We want to load the flights from a relational database (mysql) provisioned by th
 
 To deploy to PCF:
 
-We are going to deploy the *fare-service* as an internal application with a DNS domain which is not visible to the internet. 
+We are going to deploy the *fare-service* as an internal application with a DNS domain which is not visible to the internet.
 
 1. Prepare `manifest.yml`:
   ```
@@ -279,32 +279,32 @@ We are going to deploy the *fare-service* as an internal application with a DNS 
   - name: fare-service
     path: publish
     host: mr-fare-services
-    domains: 
+    domains:
     - private-dev.chdc20-cf.solera.com
     env:
       ASPNETCORE_ENVIRONMENT: Production
   ```
-2. Build 
+2. Build
   `dotnet publish -o publish -r ubuntu.14.04-x64`
 3. Deploy
-  `cf push` 
+  `cf push`
 
 ### Configure credentials of external services
-If we want to deploy the flight-availability to PCF, or any environment, we need to externalize the url of the *fare-service*. We cannot keep it along with the assembly in the `appsettings.json`. 
+If we want to deploy the flight-availability to PCF, or any environment, we need to externalize the url of the *fare-service*. We cannot keep it along with the assembly in the `appsettings.json`.
 
 There are 3 ways to configure services' credentials:
   - Use Environment variables:
     Pros:
     * Simple to implement  
-    Cons: 
-    * We cannot change them once the application starts up. 
+    Cons:
+    * We cannot change them once the application starts up.
     * If several applications share the same environment variable, should the credentials changed, we have to reset it in all applications    
   - User-Provided-Service(s):
     Pros:
     * Treat it like any other service provided by the platform.
     * If several applications share the same service, should the credentials changed, we dont have to reset it in all applications but they all have to restart though
     Cons:
-    * More complex. We have to write code to inject into Steeltoe. 
+    * More complex. We have to write code to inject into Steeltoe.
   - Configuration server:
     Props:
     * Simple to implement but not simpler than environment variables
@@ -316,21 +316,103 @@ The simplest way is to override the settings defined in `appsettings.json` via *
 
   `fare_service__url="http://localhost:5001" ASPNETCORE_ENVIRONMENT=Development dotnet run `
 
-The `Configuration` library assumes that environment variables can follow this format: *SECTION_NAME*__*ATTRIBUTE*, e.g. `fare_service__url`. 
+The `Configuration` library assumes that environment variables can follow this format: *SECTION_NAME*__*ATTRIBUTE*, e.g. `fare_service__url`.
 
 When we deploy this app to PCF, we need to declare a environment variable for the application either in the manifest or via command line:
   ```
   cf push --no-start
-  cf set-env flight-availability fare_service__url http://theURL 
+  cf set-env flight-availability fare_service__url http://theURL
   cf start flight-availability
   ```
 
+## Load fares from external application - Add logging
 
-### Miscellaneous 
+We want to leverage the standard logging library which exposes a unified api, `ILogger`. 
+
+### Add Console Logger provider
+
+the issue with this one is that it generates multi-line logging which makes it very difficult to process logs using solutions like ELK or Splunk.
+
+### Add NLog provider
+
+1. Add packages to `flight-availability.csproj`:
+  ```
+    <PackageReference Include="NLog" Version="5.0.0-beta07" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.3.1" />
+  ```
+2. Configure it in the `Startup.cs`
+3. Remove previous configuration of Console logger
+4. Add a new configuration file `nlog.config` which configures *NLog*.
+  We have configured the logger to exclude any **new line characters** from message and we have chosen a layout that we can adjust at will.
+5. Move our logging level configuration from `appsettings.json` to `nlog.config`
+
+We can include additional fields like illustrated [here](https://stackify.com/nlog-guide-dotnet-logging#post-6968-_aiscos69sga1) .
+
+
+## Load fares from external application - Global Error handling 
+
+Our api so far returns a html blob when it encounters an error. We need to transform every Exception into a json response which reports the error in some way. In addition to that we want to log the exception.
+
+For that we are going to use add a **Middleware** class and we are going to register it in our `Startup.cs` class.
+1. Add `ErrorHandlingMiddlewar` 
+  ```
+   public class ErrorHandlingMiddleware
+    {
+        private readonly RequestDelegate next;
+        private ILogger<Startup> _logger;
+
+        public ErrorHandlingMiddleware(RequestDelegate next, ILogger<Startup> logger)
+        {
+            this.next = next;
+            this._logger = logger;
+        }
+  }
+  ```
+
+2. which captures exceptions, logs them, 
+  ```
+  public async Task Invoke(HttpContext context /* other scoped dependencies */)
+  {
+      try
+      {
+          await next(context);
+      }
+      catch (Exception ex)
+      {
+          _logger.LogError(0, $"{ex.GetType().Name} : {ex.Message}");
+
+          await HandleExceptionAsync(context, ex);
+      }
+  }
+  ```
+3. and transform them into a json response.
+  ```
+  private Dictionary<string, HttpStatusCode> handlers = new Dictionary<string, HttpStatusCode>();
+
+  private Task HandleExceptionAsync(HttpContext context, Exception exception)
+  {
+      HttpStatusCode code = handlers.ContainsKey(exception.GetType().Name) ? 
+          handlers[exception.GetType().Name] : HttpStatusCode.InternalServerError;
+
+      var result = JsonConvert.SerializeObject(new { error = exception.Message });
+      context.Response.ContentType = "application/json";
+      context.Response.StatusCode = (int)code;
+      return context.Response.WriteAsync(result);
+  }
+  ```
+
+To test it, shutdown the *fare-service* and requests flights with fares.
+We should get a logging statement like this:
+`2017-08-29 16:10:12.8800 | 51266 | dotnet | 3 | Error | FlightAvailability.Startup | HttpRequestException : An error occurred while sending the request. |`
+And a json response like this:
+`{"error":"An error occurred while sending the request."}`
+
+
+### Miscellaneous
 
 ## Leverage SteelToe connectors to provide an info endpoint
 
-1. Add an actuator controller mount on `mgt/`. This controller expects on its contractor a `IOptions<CloudFoundryApplicationOptions>`. 
+1. Add an actuator controller mount on `mgt/`. This controller expects on its contractor a `IOptions<CloudFoundryApplicationOptions>`.
   ```
     public ActuatorController(ILogger<ActuatorController> logger, IOptions<CloudFoundryApplicationOptions> appInfo)
     {
@@ -354,7 +436,7 @@ When we deploy this app to PCF, we need to declare a environment variable for th
   public CloudFoundryApplicationOptions info()
   {
       _logger?.LogDebug("requesting info");
-      
+
       return _appInfo;
   }
   ```
@@ -370,9 +452,9 @@ When we deploy this app to PCF, we need to declare a environment variable for th
 
   cf services
 
-  cf service service-registry 
+  cf service service-registry
   ```
-2. Make sure the service is ready. PCF provisions the services asynchronously. Go to the AppsManager and check the service. Check out the dashboard. Or use the command `cf service service-registry`. 
+2. Make sure the service is ready. PCF provisions the services asynchronously. Go to the AppsManager and check the service. Check out the dashboard. Or use the command `cf service service-registry`.
 
 3. Prepare `manifest.yml`:
   ```
@@ -381,54 +463,63 @@ When we deploy this app to PCF, we need to declare a environment variable for th
   - name: fare-service
     path: publish
     host: mr-fare-services
-    domains: 
+    domains:
     - private-dev.chdc20-cf.solera.com
     env:
       ASPNETCORE_ENVIRONMENT: Production
     services:
     - service-registry
   ```
-4. Build 
+4. Build
   `dotnet publish -o publish -r ubuntu.14.04-x64`
 5. Deploy
-  `cf push` 
+  `cf push`
 6. Check the credentials PCF has injected into our application
   `cf env fare-service`
 
-7. Check the application has registered with Eureka. Get the url of the dashboard 
-  `cf service service-registry` 
+7. Check the application has registered with Eureka. Get the url of the dashboard
+  `cf service service-registry`
 
-8. Update flight-availability 
+8. Update flight-availability
 
 TODO Add more content
 
 
 
-## Load fares from external application using centralized configuration 
+## Load fares from external application using centralized configuration
 
 In `load-fares-from-external-app` we configured the location of `fare-service` using local configuration file like `appsettings.json`. We also learnt that we can override that setting thru environment variables (`cf set-env` or in the `manifest.yml`).
 
-Now, we are going to move the configuration to a central location, the *Config Server*. 
+Now, we are going to move the configuration to a central location, the *Config Server*.
 
 [Introduction to Config Server](https://github.com/MarcialRosales/spring-cloud-workshop/blob/master/docs/SpringCloudConfigSlides.pdf)
 
-TODO explain code changes and project changes 
+TODO explain code changes and project changes
+
+* Create Controller : FlightController
+* Create Model class : Flight
+* Create DbContext : FlightContext
+* Enable migrations (we need to add EF package)
+  `enable-migrations`  this creates a `Migrations` folder and a `Configration.cs` file to configure  migrations if needed
+  `add-migration FlightTable`  this creates a class called `FlightTable` with would create the database from scratch.`Up` method creates it and `Down` deletes them in case of rollback.
+  `update-database` runs the migrations classes to create or update the database.
+
+* Create IFlightRepository & FlightRepository
+* `Install-Package Unity` : DI Container (IDependencyResolver implementation)
 
 1. Check the config server in the market place
   `cf marketplace -s p-config-server`
 
 2. Create a service instance using `config-server.json` file found in the folder `load-fares-from-external-app-using-configserver`
-  The json file contains the service's settings. Check out the [docs](https://docs.pivotal.io/spring-cloud-services/1-4/common/config-server/configuring-with-git.html) for more details. 
+  The json file contains the service's settings. Check out the [docs](https://docs.pivotal.io/spring-cloud-services/1-4/common/config-server/configuring-with-git.html) for more details.
   `cf create-service -c config-server.json p-config-server standard config-server`
 
-3. Make sure the service is available (`cf service config-server`). It will indicate `create in progress` or `create succeeded`. 
+3. Make sure the service is available (`cf service config-server`). It will indicate `create in progress` or `create succeeded`.
 
 4. Update manifest to include `config-server`
 
-5. Build 
+5. Build
   `dotnet publish -o publish -r ubuntu.14.04-x64`
 
 5. Deploy
-  `cf push` 
-
-
+  `cf push`

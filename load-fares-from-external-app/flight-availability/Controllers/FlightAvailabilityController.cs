@@ -30,6 +30,7 @@ namespace FlightAvailability.Controllers
         [HttpGet()]
         public async Task<IEnumerable<Flight>> find([FromQuery, Required] string origin, [FromQuery, Required] string destination)
         {
+            _logger.LogInformation($"find {origin}/{destination}");
             return await _flightService.find(origin, destination);
 
         }
