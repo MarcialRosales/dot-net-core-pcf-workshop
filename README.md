@@ -67,7 +67,7 @@ In the next sections we are going to deploy a ASP.NET Core MVC application and a
 ## <a name="deploy-dot-net-app"></a> Deploy a ASP.NET Core MVC app
 This application was created using the out of the box ASP.NET Core MVC template found in the dotnet CLI. It uses MVC to render the home page and it also has REST controllers that allows us to look up flights by its origin and destination.
 
-1. `cd load-flights-from-in-memory-db/flight-availability`
+1. `cd skeleton/FlightAvailability`
 3. Build the app  
   `dotnet restore`  
   `dotnet build`  
@@ -88,9 +88,9 @@ The static site corresponds to the API documentation of our flight-availability 
 
 1. Assuming you are under `load-flights-from-in-memory-db`
 2. Deploy the app  
-  `cf push flight-availability-api -p flight-availability-api-doc --random-route`  use this command if you build it
+  `cf push flight-availability-api -p flight-availability-api-doc --random-route`  
 3. Check out application's details, whats the url?  
-  `cf app flight-availability-site`  
+  `cf app flight-availability-api`  
 4. How did PCF know that this was a static site and not a .Net application?
 
 ## <a name="quick-intro-buildpack"></a> Quick Introduction to Buildpacks
@@ -327,7 +327,7 @@ When we deploy this app to PCF, we need to declare a environment variable for th
 
 ## Load fares from external application - Add logging
 
-We want to leverage the standard logging library which exposes a unified api, `ILogger`. 
+We want to leverage the standard logging library which exposes a unified api, `ILogger`.
 
 ### Add Console Logger provider
 
@@ -349,12 +349,12 @@ the issue with this one is that it generates multi-line logging which makes it v
 We can include additional fields like illustrated [here](https://stackify.com/nlog-guide-dotnet-logging#post-6968-_aiscos69sga1) .
 
 
-## Load fares from external application - Global Error handling 
+## Load fares from external application - Global Error handling
 
 Our api so far returns a html blob when it encounters an error. We need to transform every Exception into a json response which reports the error in some way. In addition to that we want to log the exception.
 
 For that we are going to use add a **Middleware** class and we are going to register it in our `Startup.cs` class.
-1. Add `ErrorHandlingMiddlewar` 
+1. Add `ErrorHandlingMiddlewar`
   ```
    public class ErrorHandlingMiddleware
     {
@@ -369,7 +369,7 @@ For that we are going to use add a **Middleware** class and we are going to regi
   }
   ```
 
-2. which captures exceptions, logs them, 
+2. which captures exceptions, logs them,
   ```
   public async Task Invoke(HttpContext context /* other scoped dependencies */)
   {
@@ -391,7 +391,7 @@ For that we are going to use add a **Middleware** class and we are going to regi
 
   private Task HandleExceptionAsync(HttpContext context, Exception exception)
   {
-      HttpStatusCode code = handlers.ContainsKey(exception.GetType().Name) ? 
+      HttpStatusCode code = handlers.ContainsKey(exception.GetType().Name) ?
           handlers[exception.GetType().Name] : HttpStatusCode.InternalServerError;
 
       var result = JsonConvert.SerializeObject(new { error = exception.Message });
