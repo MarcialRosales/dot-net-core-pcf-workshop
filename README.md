@@ -84,7 +84,9 @@ Reference documentation:
 - https://docs.pivotal.io
 - [Elastic Runtime concepts](http://docs.pivotal.io/pivotalcf/concepts/index.html)
 
-# Considerations for designing and running an application in the cloud
+> Use slides: 01-elastic-runtime.ppt, 02-cli.ppt
+
+# Core disciplines to develop Cloud Native Application
 
 - Automated provisioning & configuration
 - Automated scaling
