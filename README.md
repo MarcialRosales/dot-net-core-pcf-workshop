@@ -3,7 +3,7 @@ PCF .Net Core Developers workshop
 
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-- [Introduction](#Introduction)
+- [Introduction](#introduction)
 - [Pivotal Cloud Foundry Technical Overview](#pivotal-cloud-foundry-technical-overview)
 - [.Net framework vs .Net core & PCF](#framework-comparison)
   - ASP.NET Core vs ASP.NET 4.x
@@ -12,7 +12,8 @@ PCF .Net Core Developers workshop
   - Basic Introduction to ASP.NET Core
   - .NET 4.x support on Cloud Foundry
   - Containers: Garden-Linux vs Garden-windows
-- [Deploying .Net apps](#deploying-simple-apps)
+- [Deploying .Net apps](#deploy-net-apps)
+  - [Considerations for Designing and Running an Application in the Cloud](#considerations)
   - [Lab 1 - Deploy simple ASP.NET MVC app](#lab1)
   - [Lab 2 - Deploy simple ASP.NET Core MVC app](#lab2)
   - [Lab 3 - Understand how and on which URL our application is listening on](#lab3)
@@ -189,7 +190,7 @@ It’s possible to use the configuration system independently from dependency in
   * Network isolation: Applications bind directly to the external IP of the cell. Internal container ports must be mapped to external ports (http://engineering.pivotal.io/post/windows-containerization-deep-dive/)
   * Memory isolation: Uses job object process isolation + the "Guard". Guard monitors app memory usage and kill jobs if `mapped memory > allocated memory`. Guard also enforces no process can be launched outside the job object process tree.
 
-# Deploying .Net apps
+# <a  name="deploy-net-apps"></a>Deploying .Net apps
 
 CloudFoundry excels at the developer experience: deploy, update and scale applications on-demand regardless of the application stack (java, php, node.js, go, etc).  We are going to learn how to deploy 3 types of applications: .Net framework, .Net Core app and static web pages.
 
@@ -204,7 +205,7 @@ Before we proceed with the next sections we are going to checkout the following 
 1. `git clone https://github.com/MarcialRosales/dot-net-core-pcf-workshops.git`
 2. `cd dot-net-core-pcf-workshops`
 
-# Considerations for Designing and Running an Application in the Cloud
+## <a name="considerations"></a> Considerations for Designing and Running an Application in the Cloud
 
 Applications written in any of the supported application frameworks often run unmodified on Cloud Foundry, if the application design follows a few simple guidelines:
   - Avoid Writing to the Local File System: shorted lived and not shared
