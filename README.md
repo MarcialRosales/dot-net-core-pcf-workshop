@@ -562,7 +562,7 @@ applications:
 
 We have seen how we can scale our application (`cf scale -i #` or `cf push  ... -i #`). When we specify the number of instances, we create implicitly creating a contract with the platform. The platform will try its best to guarantee that the application has those instances. Ultimately the platform depends on the underlying infrastructure to provision new instances should some of them failed. If the infrastructure is not ready available, the platform wont be able to comply with the contract. Besides this edge case, the platform takes care of our application availability.
 
-https://docs.developer.swisscom.com/devguide/deploy-apps/healthchecks.html
+> Reference docs: https://docs.cloudfoundry.org/devguide/deploy-apps/healthchecks.html
 
 Let's try to simulate our application crashed. To do so go to the home page and click on the link `KillApp`.
 
@@ -594,7 +594,7 @@ In the lab 3 we use the standard logging API and the *Console* implementation th
 
 However, if we intend to use ELK to process our logs and trigger some logic, raise alarms, etc, we need to improve our logging. Every log statement must produce a single statement not many. One way to achieve that is by using a different logging implementation like NLog. NLog allows us to control the layout of the logging statement and also to log it using a single line. log4net is another common logging framework in .Net but I have not evaluated it.
 
-    https://docs.developer.swisscom.com/devguide/deploy-apps/streaming-logs.html
+> Reference docs: https://docs.cloudfoundry.org/devguide/deploy-apps/streaming-logs.html
 
 
 ## <a name="lab5"></a>Lab 5 - Improve logging
