@@ -830,9 +830,11 @@ We want to load the flights from a relational database (mysql) provisioned by th
 1. `cd load-flights-from-db`
 2. `cd flight-availability`
 3. Build the app  
-  `dotnet restore`
-  `dotnet build`
-  `dotnet publish -o publish -r ubuntu.14.04-x64`
+  ```
+  dotnet restore
+  dotnet build
+  dotnet publish -o publish -r ubuntu.14.04-x64
+  ```
 4. Before we deploy our application to PCF we need to provision a mysql database. If we tried to push the application without creating the service we get:
 	```
 	...
