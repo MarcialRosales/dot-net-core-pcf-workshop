@@ -10,4 +10,4 @@ inputs:
 
 run:
   path: sh
-  args: ["source-code/ci/build.sh"]
+  args: ["source-code/$PROJECT/ci/build.sh"]
