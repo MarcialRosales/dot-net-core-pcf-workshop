@@ -13,7 +13,5 @@ jobs:
   - get: source-code
     trigger: true
   - task: build
-    file: source-code/ci/tasks/build.yml
-    params: 
-      PROJECT: simple-apps/2-sample-dotnet-core
-      
+    file: source-code/simple-apps/2-sample-dotnet-core/ci/tasks/build.yml
+    

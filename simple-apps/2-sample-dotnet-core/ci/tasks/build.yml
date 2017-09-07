@@ -8,6 +8,8 @@ image_resource:
 inputs:
 - name: source-code
 
+params:
+  PROJECT: simple-apps/2-sample-dotnet-core
 run:
   path: sh
-  args: ["source-code/$PROJECT/ci/build.sh"]
+  args: ["source-code/simple-apps/2-sample-dotnet-core/ci/build.sh"]
