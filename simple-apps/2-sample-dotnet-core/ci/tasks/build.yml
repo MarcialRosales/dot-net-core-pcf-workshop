@@ -12,4 +12,4 @@ params:
   PROJECT: simple-apps/2-sample-dotnet-core
 run:
   path: sh
-  args: ["source-code/simple-apps/2-sample-dotnet-core/ci/build.sh"]
+  args: ["source-code/simple-apps/2-sample-dotnet-core/ci/tasks/build.sh"]
