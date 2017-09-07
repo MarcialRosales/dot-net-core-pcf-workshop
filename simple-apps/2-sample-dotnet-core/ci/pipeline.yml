@@ -7,6 +7,17 @@ resources:
     paths: 
       - simple-apps/2-sample-dotnet-core
 
+- name: pcf
+  type: cf
+  source:
+    api: {{cf-api}}
+    username: {{cf-user}}
+    password: {{cf-password}}
+    organization: {{cf-organization}}
+    space: {{cf-space}}
+    skip_cert_check: false
+
+
 jobs:
 - name: build-app
   plan:
@@ -14,4 +25,9 @@ jobs:
     trigger: true
   - task: build
     file: source-code/simple-apps/2-sample-dotnet-core/ci/tasks/build.yml
-    
+  - put: pcf 
+    params:
+      manifest: source-code/simple-apps/2-sample-dotnet-core/manifest.yml
+      path: artifact 
+      environment_variables:
+        ASPNETCORE_ENVIRONMENT: Production

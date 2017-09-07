@@ -8,6 +8,9 @@ image_resource:
 inputs:
 - name: source-code
 
+outputs:
+- name: artifact
+
 params:
   PROJECT: simple-apps/2-sample-dotnet-core
 run:
