@@ -1,0 +1,15 @@
+resources:
+- name: source-code
+  type: git
+  source:
+    uri: 
+    branch: master
+
+jobs:
+- name: build-app
+  plan:
+  - get: source-code
+    trigger: true
+  - task: build
+    file: source-code/ci/tasks/build.yml
+    

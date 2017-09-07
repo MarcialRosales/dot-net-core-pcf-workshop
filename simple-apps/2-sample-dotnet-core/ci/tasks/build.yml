@@ -1,0 +1,13 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: microsoft/dotnet
+
+inputs:
+- name: source-code
+
+run:
+  path: sh
+  args: ["source-code/ci/build.sh"]
