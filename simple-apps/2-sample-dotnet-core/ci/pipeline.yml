@@ -2,8 +2,10 @@ resources:
 - name: source-code
   type: git
   source:
-    uri: 
-    branch: master
+    uri: https://github.com/MarcialRosales/dot-net-core-pcf-workshop
+    branch: master  
+    paths: 
+      - simple-apps/2-sample-dotnet-core
 
 jobs:
 - name: build-app
@@ -12,4 +14,6 @@ jobs:
     trigger: true
   - task: build
     file: source-code/ci/tasks/build.yml
-    
+    params: 
+      PROJECT: simple-apps/2-sample-dotnet-core
+      
