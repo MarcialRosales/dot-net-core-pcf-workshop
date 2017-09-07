@@ -1087,6 +1087,8 @@ And a json response like this:
 
 ### Load fares from an internal application registered with Eureka
 
+Go to the folder `load-fares-from-internal-app-with-eureka`. 
+
 1. Create the service registration, a.k.a. Eureka
   (http://docs.pivotal.io/spring-cloud-services/service-registry/creating-an-instance.html)
   ```
